@@ -4,7 +4,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,6 +23,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         // each data item is just a string in this case
         TextView txtHeader;
         TextView txtFooter;
+        ImageView image;
         View layout;
 
         ViewHolder(View v) {
@@ -28,6 +31,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             layout = v;
             txtHeader = (TextView) v.findViewById(R.id.firstLine);
             txtFooter = (TextView) v.findViewById(R.id.secondLine);
+            image = (ImageView) v.findViewById(R.id.icon);
         }
     }
 
@@ -62,15 +66,19 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         final Card currentCard = values.get(position);
+
         holder.txtHeader.setText(currentCard.getName());
-        /*holder.txtHeader.setOnClickListener(new OnClickListener() {
+        holder.txtFooter.setText("read more");
+        //holder.image.setImageURI(Uri.parse("file://" + mMediaStorageDir.getPath() + "/" + mDataset[position]));
+        holder.txtHeader.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                remove(position);
+                //Toast myToast = Toast.makeText(this.context(), currentCard.getDesc(), Toast.LENGTH_SHORT);
+                //myToast.show();
             }
-        });*/
+        });
 
-        //holder.txtFooter.setText(currentCard.get);
+
     }
 
     // Return the size of your dataset (invoked by the layout manager)
