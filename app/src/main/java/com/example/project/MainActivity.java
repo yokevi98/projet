@@ -1,11 +1,14 @@
 package com.example.project;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -17,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,13 +38,38 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ListAdapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
+    private SharedPreferences sharedPreferences;
+    private Gson gson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        makeApiCall();
+        sharedPreferences = getSharedPreferences(constants.KEY_SHARED_PREFERENCES, Context.MODE_PRIVATE);
+
+        gson = new GsonBuilder()
+                .setLenient()
+                .create();
+
+        List<Card> cardList = getDataFromCache();
+
+        if(cardList != null){
+            showList(cardList);
+        } else  {
+            makeApiCall();
+        }
+    }
+
+    private List<Card> getDataFromCache() {
+       String jsonCard = sharedPreferences.getString(constants.KEY_CARD_LIST, null);
+
+       if(jsonCard == null){
+           return null;
+       } else {
+           Type listType = new TypeToken<List<Card>>(){}.getType();
+           return gson.fromJson(jsonCard, listType);
+       }
     }
 
     private void showList(List<Card> cardList) {
@@ -60,10 +89,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void makeApiCall() {
-        Gson gson = new GsonBuilder()
-                .setLenient()
-                .create();
-
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
@@ -77,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
            public void onResponse(Call<RestYugiohResponse> call, Response<RestYugiohResponse> response) {
                 if(response.isSuccessful() && response.body() != null) {
                     List<Card> cardList = response.body().getData();
+                    saveList(cardList);
                     showList(cardList);
                 } else {
                     showError();
@@ -88,6 +114,17 @@ public class MainActivity extends AppCompatActivity {
                 showError();
            }
        });
+    }
+
+    private void saveList(List<Card> cardList) {
+        String jsonString = gson.toJson(cardList);
+
+        sharedPreferences
+                .edit()
+                .putString(constants.KEY_CARD_LIST, jsonString)
+                .apply();
+
+        Toast.makeText(getApplicationContext(), "Lsite sauvegardée", Toast.LENGTH_SHORT).show();
     }
 
     private void showError() {
