@@ -7,6 +7,3 @@ Consigne respectées :
 •	Écran avec une liste d’éléments.
 •	Appel WebService à une API Rest.
 •	Stockage de données en cache
-
-Fonctionnalités :
-Ceci est la liste des cartes du projet
